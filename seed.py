@@ -37,21 +37,29 @@ def load_users():
 
 def load_movies():
     """Load movies from u.item into database."""
+
+    print "Movies"
+
+    Movie.query.delete()
     
     for row in open("seed_data/u.item"):
         row = row.rstrip()
         movie_row = row.split("|")
-        movie_info = movie_row[0:5]
-        del movie_info[3] # removing empty space in seed data
 
-        movie_id, title, released_str, imdb_url = movie_info
+        movie_id, title, released_str, _, imdb_url = movie_row[0:5]
+
+        title_words = title.split(" ")
+        title_year_word = title_words[-1]
+        if title_year_word[1:5].isdigit():
+            del title_words[-1]
+
+        title = " ".join(title_words)
 
         if released_str:
             released_at = datetime.strptime(released_str, "%d-%b-%Y")
         else:
             released_at = None
             
-
         movie = Movie(movie_id=movie_id,
                       title=title,
                       released_at=released_at,
@@ -64,6 +72,10 @@ def load_movies():
 
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    print "Rating"
+
+    Rating.query.delete()
 
     for row in open("seed_data/u.data"):
         row = row.rstrip()

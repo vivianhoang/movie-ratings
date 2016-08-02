@@ -29,7 +29,6 @@ class User(db.Model):
         return "<User user_id=%s email=%s>" % (self.user_id,
                                                self.email)
 
-
 # Put your Movie and Rating model classes here.
 
 class Movie(db.Model):
@@ -42,14 +41,15 @@ class Movie(db.Model):
     released_at = db.Column(db.DateTime, nullable=True)
     imdb_url = db.Column(db.String(200), nullable=True)
 
+
 class Rating(db.Model):
     """Store rating for move along with user id."""
 
     __tablename__ = "ratings"
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    movie_id = db.Column(db.Integer, db.ForeignKey('movie.movie_id'))  
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'))  
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     score = db.Column(db.Integer, nullable=False) 
 
 
