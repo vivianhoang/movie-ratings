@@ -62,10 +62,22 @@ def load_movies():
     db.session.commit()
 
 
-
-
 def load_ratings():
     """Load ratings from u.data into database."""
+
+    for row in open("seed_data/u.data"):
+        row = row.rstrip()
+        rating_row = row.split("\t")
+
+        user_id, movie_id, score, timestamp = rating_row
+
+        rating = Rating(user_id=user_id,
+                        movie_id=movie_id,
+                        score=score)
+
+        db.session.add(rating)
+
+    db.session.commit()
 
 
 def set_val_user_id():
