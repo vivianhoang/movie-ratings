@@ -6,6 +6,7 @@ from flask import Flask, render_template, redirect, request, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Rating, Movie
+from sqlalchemy.orm import exc
 
 
 app = Flask(__name__)
@@ -31,6 +32,31 @@ def user_list():
 
     users = User.query.all()
     return render_template("user_list.html", users=users)
+
+@app.route('/register', methods=['GET'])
+def register_form():
+    """Let user register to rate movies. """
+
+    return render_template('register_form.html')
+
+@app.route('/register', methods=['POST'])
+def register_process():
+    """Processes the sign in form checking to see if user with username exists,
+    and if not, creating new user in database. 
+    """
+
+    user_email = request.form.get('email')
+    user_password = request.form.get('password')
+
+    try:
+        User.query.filter_by(email=user_email).one()
+        print "User already exist in db."
+    except NoResultFound:
+        new_user = User(email=user_email, password=user_password, age=None, zipcode=None)
+        db.session.add(new_user)
+        db.session.commit()
+
+    return redirect('/')
 
 
 if __name__ == "__main__":
