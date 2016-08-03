@@ -3,11 +3,10 @@
 from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, redirect, request, flash, session
-from flask_debugtoolbar import DebugToolbarExtension
+#from flask_debugtoolbar import DebugToolbarExtension
 
 from model import connect_to_db, db, User, Rating, Movie
-from sqlalchemy.orm import exc
-
+import sqlalchemy
 
 app = Flask(__name__)
 
@@ -23,8 +22,10 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/')
 def index():
     """Homepage."""
+    
+    user = session.get('user', False)
 
-    return render_template("homepage.html")
+    return render_template("homepage.html", user=user)
 
 @app.route('/users')
 def user_list():
@@ -48,15 +49,32 @@ def register_process():
     user_email = request.form.get('email')
     user_password = request.form.get('password')
 
+    session['user'] = user_email
+
     try:
         User.query.filter_by(email=user_email).one()
-        print "User already exist in db."
-    except NoResultFound:
+        # print "User already exist in db."
+        msg = "Welcome back, %s! You're logged in." % (user_email)
+    except Exception:
+        # print "Oops. Add user anyways"
+        msg = "Hi, %s. Welcome to our movie rating app! Have a look around and rate your heart away." % (user_email)
         new_user = User(email=user_email, password=user_password, age=None, zipcode=None)
         db.session.add(new_user)
         db.session.commit()
+        
+
+    flash(msg)
 
     return redirect('/')
+
+@app.route('/log_out')
+def log_out():
+    """Log user out """
+    del session['user']
+
+    flash("Logged out")
+
+    return redirect("/")
 
 
 if __name__ == "__main__":
@@ -67,6 +85,6 @@ if __name__ == "__main__":
     connect_to_db(app)
 
     # Use the DebugToolbar
-    DebugToolbarExtension(app)
+    #DebugToolbarExtension(app)
 
     app.run()
