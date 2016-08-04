@@ -62,10 +62,14 @@ def register_process():
         db.session.add(new_user)
         db.session.commit()
         
-
     flash(msg)
 
-    return redirect('/')
+    # get user id using email, then pass to redirect url
+    user_obj = User.query.filter_by(email=user_email).first()
+    user_id = user_obj.user_id
+    url = '/user/%s' % (user_id)
+
+    return redirect(url)
 
 @app.route('/log_out')
 def log_out():
@@ -75,6 +79,36 @@ def log_out():
     flash("Logged out")
 
     return redirect("/")
+
+
+@app.route('/user/<int:id>')
+def user_profile(id):
+    """Display user information and list of movies they have rated."""
+
+    user_info = User.query.get(id)
+    email = user_info.email
+    age = user_info.age
+    zipcode = user_info.zipcode
+
+    user_rated_movies = []
+
+
+    # get user's rated movies - returns a list of ratings obj
+    user_ratings = user_info.ratings
+
+    # for each rating obj, use movie id to get movie object 
+    for one_rating_obj in user_ratings:
+        # one_movie_obj = Movie.query.get(one_rating_obj.movie_id)
+        user_rated_movies.append((one_rating_obj.movie.title, one_rating_obj.score))
+
+        # take title from movie obj and score from rating obj, store in list of tuples
+        # user_rated_movies.append((one_movie_obj.title, one_rating_obj.score))
+
+    return render_template('user.html', 
+                            email=email, 
+                            age=age,
+                            zipcode=zipcode,
+                            user_rated_movies=user_rated_movies)
 
 
 if __name__ == "__main__":
