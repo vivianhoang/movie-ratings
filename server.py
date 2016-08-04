@@ -110,6 +110,37 @@ def user_profile(id):
                             zipcode=zipcode,
                             user_rated_movies=user_rated_movies)
 
+@app.route('/movies')
+def display_movies():
+    """Display movies in alphabetical order."""
+
+    movies_list = db.session.query(Movie.movie_id, Movie.title).order_by(Movie.title).all()
+
+    return render_template('movie_list.html', movies_list=movies_list)
+
+@app.route('/movie/<int:id>')
+def movie_details(id):
+    """Display movie details."""
+
+    movie_info = Movie.query.get(id)
+    title = movie_info.title
+    released_at = movie_info.released_at
+    imdb_url = movie_info.imdb_url
+
+    all_movie_ratings = []
+
+    movie_ratings = movie_info.ratings
+
+    for rating in movie_ratings:
+        all_movie_ratings.append((rating.user.email, rating.score))
+
+    print all_movie_ratings
+
+    return render_template('movie.html',
+                            title=title,
+                            released_at=released_at,
+                            imdb_url=imdb_url,
+                            all_movie_ratings=all_movie_ratings)
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<a href="/">Home</a>
+
+{% if movies_list %}
+    <ul>
+        {% for movie in movies_list%}
+            <li>
+                <a href="/movie/{{movie[0]}}">{{movie[1]}}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+
+{% endblock %}
