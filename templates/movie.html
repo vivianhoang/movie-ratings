@@ -2,20 +2,34 @@
 
 {% block content %}
 
-<h2>{{ title }}</h2>
+<h2>{{ movie.title }}</h2>
 
-<p>Released: {{ released_at }}<br></br>
-<a href="{{ imdb_url }}"> IMDB Movie Information</a></p>
+<p>Released: {{ movie.released_at }}<br></br>
+<a href="{{ movie.imdb_url }}"> IMDB Movie Information</a></p>
 
-{% if all_movie_ratings %}
+{%if user %}
+    <form action="/add_rating" method="POST">
+        <input type="hidden" name="movie_id" value="{{ movie.movie_id }}">
+        <input type="hidden" name="user_id" value="{{ user.user_id }}">
+        <label for="field-score">Your rating: </label>
+            <select name="score" id="field-score">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+        <input type="submit" />
+    </form>
+{% endif %}
+
     <h3>All Ratings</h3>
 
     <ul>
-        {% for rating in all_movie_ratings %}
-        <li>User: {{ rating[0] }} | Score: {{ rating[1] }}</li>
+        {% for rating in movie.ratings %}
+        <li>User: {{ rating.user.email }} | Score: {{ rating.score }}</li>
         {% endfor %}
     </ul>
 
-{% endif %}
 
 {% endblock %}
